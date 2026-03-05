@@ -1,0 +1,231 @@
+# MySQL Production Configuration
+# File: conf/mysql/my.prod.cnf
+# Optimized for: Production with 8-16GB RAM, SSD, High availability
+# Last updated: 2025-01-05
+
+[mysqld]
+
+#------------------------------------------------------------------------------
+# GENERAL SETTINGS
+#------------------------------------------------------------------------------
+
+server-id = 1                            # Change for each server in replication
+
+# Character set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+default-storage-engine = InnoDB
+default-time-zone = '+00:00'
+
+#------------------------------------------------------------------------------
+# CONNECTIONS
+#------------------------------------------------------------------------------
+
+max_connections = 1000                   # Higher for production
+max_connect_errors = 1000000
+connect_timeout = 10
+
+#------------------------------------------------------------------------------
+# PACKET SIZE
+#------------------------------------------------------------------------------
+
+max_allowed_packet = 256M
+
+#------------------------------------------------------------------------------
+# SQL MODE (Strict for production!)
+#------------------------------------------------------------------------------
+
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+
+#------------------------------------------------------------------------------
+# INNODB SETTINGS (Production optimized)
+#------------------------------------------------------------------------------
+
+# Buffer pool size (50-70% of RAM for dedicated DB server)
+innodb_buffer_pool_size = 8G             # For 16GB RAM
+# Adjust: 8GB RAM = 4GB, 32GB RAM = 20GB
+
+innodb_buffer_pool_instances = 8         # 1 per GB
+
+innodb_log_file_size = 1G
+innodb_log_buffer_size = 32M
+
+innodb_flush_method = O_DIRECT
+
+# I/O capacity (SSD)
+innodb_io_capacity = 2000
+innodb_io_capacity_max = 4000
+
+innodb_file_per_table = ON
+
+# Safer for production (1 = full ACID compliance)
+innodb_flush_log_at_trx_commit = 1
+
+# Doublewrite buffer (safety)
+innodb_doublewrite = ON
+
+#------------------------------------------------------------------------------
+# TEMPORARY TABLES
+#------------------------------------------------------------------------------
+
+tmp_table_size = 128M
+max_heap_table_size = 128M
+
+#------------------------------------------------------------------------------
+# THREAD SETTINGS
+#------------------------------------------------------------------------------
+
+thread_cache_size = 100
+thread_stack = 256K
+
+#------------------------------------------------------------------------------
+# TABLE SETTINGS
+#------------------------------------------------------------------------------
+
+table_open_cache = 8000
+table_definition_cache = 4000
+
+#------------------------------------------------------------------------------
+# LOGGING (Production)
+#------------------------------------------------------------------------------
+
+# Disable general log (performance impact)
+general_log = OFF
+
+# Slow query log (queries > 1 second)
+slow_query_log = ON
+slow_query_log_file = /var/lib/mysql/slow.log
+long_query_time = 1
+log_queries_not_using_indexes = OFF      # Too verbose in production
+
+# Error log
+log_error = /var/lib/mysql/error.log
+
+# Binary log (IMPORTANT for backups and replication!)
+log_bin = mysql-bin
+binlog_format = ROW
+expire_logs_days = 7
+max_binlog_size = 100M
+
+# Enable GTIDs for replication (if using replication)
+# gtid_mode = ON
+# enforce_gtid_consistency = ON
+
+#------------------------------------------------------------------------------
+# REPLICATION (Master configuration)
+#------------------------------------------------------------------------------
+
+# Uncomment for master server:
+# log_bin = mysql-bin
+# server-id = 1
+# binlog_format = ROW
+# sync_binlog = 1
+
+# Uncomment for slave server:
+# server-id = 2
+# relay_log = relay-bin
+# read_only = ON
+
+#------------------------------------------------------------------------------
+# PERFORMANCE SCHEMA
+#------------------------------------------------------------------------------
+
+performance_schema = ON
+performance_schema_max_table_instances = 12500
+
+#------------------------------------------------------------------------------
+# SECURITY
+#------------------------------------------------------------------------------
+
+# Skip reverse DNS (faster, more secure)
+skip-name-resolve
+
+# Disable symbolic links
+symbolic-links = 0
+
+# Disable LOAD DATA LOCAL INFILE (security)
+local-infile = 0
+
+# Require secure transport (SSL/TLS)
+# Uncomment after setting up SSL certificates:
+# require_secure_transport = ON
+
+#------------------------------------------------------------------------------
+# SSL/TLS CONFIGURATION
+#------------------------------------------------------------------------------
+
+# Uncomment and configure SSL:
+# ssl-ca = /etc/mysql/certs/ca-cert.pem
+# ssl-cert = /etc/mysql/certs/server-cert.pem
+# ssl-key = /etc/mysql/certs/server-key.pem
+
+#------------------------------------------------------------------------------
+# MONITORING
+#------------------------------------------------------------------------------
+
+# Enable slow query log analysis
+log_slow_admin_statements = ON
+log_slow_slave_statements = ON
+
+#------------------------------------------------------------------------------
+# MyISAM SETTINGS
+#------------------------------------------------------------------------------
+
+key_buffer_size = 64M
+myisam_sort_buffer_size = 128M
+
+#------------------------------------------------------------------------------
+# MISCELLANEOUS
+#------------------------------------------------------------------------------
+
+lower_case_table_names = 0
+
+# Open files limit
+open_files_limit = 65535
+
+#------------------------------------------------------------------------------
+# CLIENT SETTINGS
+#------------------------------------------------------------------------------
+
+[client]
+default-character-set = utf8mb4
+port = 3306
+
+# SSL for client connections
+# ssl-ca = /etc/mysql/certs/ca-cert.pem
+# ssl-cert = /etc/mysql/certs/client-cert.pem
+# ssl-key = /etc/mysql/certs/client-key.pem
+
+[mysql]
+default-character-set = utf8mb4
+
+#------------------------------------------------------------------------------
+# BACKUP CONFIGURATION
+#------------------------------------------------------------------------------
+
+# For mysqldump:
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 256M
+
+#------------------------------------------------------------------------------
+# PRODUCTION CHECKLIST
+#------------------------------------------------------------------------------
+
+# Before going live:
+# [ ] Set strong root password
+# [ ] Create dedicated user with limited privileges
+# [ ] Configure SSL/TLS
+# [ ] Set up automated backups (mysqldump or Percona XtraBackup)
+# [ ] Enable binary logging
+# [ ] Set up replication (if HA required)
+# [ ] Configure monitoring (Prometheus, Grafana, PMM)
+# [ ] Test restore procedure
+# [ ] Set up log rotation
+# [ ] Document disaster recovery plan
+
+#------------------------------------------------------------------------------
+# END OF CONFIGURATION
+#------------------------------------------------------------------------------

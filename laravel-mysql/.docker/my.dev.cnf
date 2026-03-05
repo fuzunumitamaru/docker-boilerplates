@@ -1,0 +1,136 @@
+[mysqld]
+
+#------------------------------------------------------------------------------
+# GENERAL SETTINGS
+#------------------------------------------------------------------------------
+
+# Server ID (change if setting up replication)
+server-id = 1
+
+# Character set (CRITICAL - fixes emoji/UTF-8 issues!)
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Default storage engine
+default-storage-engine = InnoDB
+
+# Time zone
+default-time-zone = '+00:00'
+
+#------------------------------------------------------------------------------
+# CONNECTIONS
+#------------------------------------------------------------------------------
+
+max_connections = 500
+max_connect_errors = 1000000
+connect_timeout = 10
+
+#------------------------------------------------------------------------------
+# PACKET SIZE (CRITICAL for CSV imports!)
+#------------------------------------------------------------------------------
+
+max_allowed_packet = 256M
+
+#------------------------------------------------------------------------------
+# SQL MODE (Laravel compatibility)
+#------------------------------------------------------------------------------
+
+# Relaxed mode for development
+sql_mode = NO_ENGINE_SUBSTITUTION
+
+#------------------------------------------------------------------------------
+# INNODB SETTINGS
+#------------------------------------------------------------------------------
+
+# Buffer pool size (MOST IMPORTANT!)
+innodb_buffer_pool_size = 512M
+innodb_buffer_pool_instances = 1
+
+# Log file size
+innodb_redo_log_capacity = 1G
+innodb_log_buffer_size = 16M
+
+# Flush method
+innodb_flush_method = O_DIRECT
+
+# I/O capacity (SSD optimized)
+innodb_io_capacity = 2000
+innodb_io_capacity_max = 4000
+
+# File per table
+innodb_file_per_table = ON
+
+# Flush log at transaction commit
+innodb_flush_log_at_trx_commit = 1
+
+#------------------------------------------------------------------------------
+# TEMPORARY TABLES
+#------------------------------------------------------------------------------
+
+tmp_table_size = 64M
+max_heap_table_size = 64M
+
+#------------------------------------------------------------------------------
+# THREAD SETTINGS
+#------------------------------------------------------------------------------
+
+thread_cache_size = 50
+thread_stack = 256K
+
+#------------------------------------------------------------------------------
+# TABLE SETTINGS
+#------------------------------------------------------------------------------
+
+table_open_cache = 4000
+table_definition_cache = 2000
+
+#------------------------------------------------------------------------------
+# LOGGING (Development)
+#------------------------------------------------------------------------------
+
+# Slow query log
+slow_query_log = ON
+slow_query_log_file = /var/lib/mysql/slow.log
+long_query_time = 2
+log_queries_not_using_indexes = ON
+
+# Error log
+log_error = /var/lib/mysql/error.log
+
+#------------------------------------------------------------------------------
+# PERFORMANCE SCHEMA
+#------------------------------------------------------------------------------
+
+performance_schema = ON
+performance_schema_max_table_instances = 12500
+
+#------------------------------------------------------------------------------
+# MyISAM SETTINGS
+#------------------------------------------------------------------------------
+
+key_buffer_size = 32M
+myisam_sort_buffer_size = 64M
+
+#------------------------------------------------------------------------------
+# MISCELLANEOUS
+#------------------------------------------------------------------------------
+
+# Skip reverse DNS lookup (faster connections)
+skip-name-resolve
+
+# Disable symbolic links (security)
+symbolic-links = 0
+
+# Lower case table names
+lower_case_table_names = 0
+
+#------------------------------------------------------------------------------
+# CLIENT SETTINGS
+#------------------------------------------------------------------------------
+
+[client]
+default-character-set = utf8mb4
+port = 3306
+
+[mysql]
+default-character-set = utf8mb4
